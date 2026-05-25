@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Defensive: no untrusted GitHub event inputs are used in `run:` commands anywhere in this file.
+# Only checkout, dependency install, and our own test/lint commands run here.
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Lint with ruff
+        run: uv run ruff check plugins/
+
+      - name: Type-check with mypy
+        run: uv run mypy plugins/
+
+      - name: Run pytest
+        env:
+          REDIS_HOST: localhost
+          REDIS_PORT: "6379"
+        run: uv run pytest plugins/hermes_claude_code_router/tests/ -v

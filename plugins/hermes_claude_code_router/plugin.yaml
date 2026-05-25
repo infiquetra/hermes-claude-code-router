@@ -1,0 +1,19 @@
+name: hermes-claude-code-router
+version: "0.1.0"
+description: >-
+  Routes Discord text/voice messages to live Claude Code sessions via the
+  redis-bridge channel protocol. Companion to infiquetra-claude-plugins/redis-bridge.
+provides_hooks:
+  - pre_gateway_dispatch
+provides_tools:
+  - list_cc_sessions
+  - set_routing_target
+  - get_routing_target
+requires_env:
+  - name: REDIS_URL
+    description: >-
+      Redis URL (e.g., redis://127.0.0.1:6379/0). Required. Same instance
+      that hosts the cc-sessions:* keys.
+  - name: REDIS_PASSWORD
+    description: >-
+      Redis password if the server uses requirepass. Optional.

@@ -1,0 +1,48 @@
+[project]
+name = "hermes-claude-code-router"
+version = "0.1.0"
+description = "Hermes plugin that routes Discord voice/text to Claude Code sessions via the redis-bridge channel protocol"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Infiquetra", email = "hello@infiquetra.com" }]
+
+# This repo is a Hermes plugin (filesystem artifact installed via scripts/install.sh).
+# It is not a Python package; do not build a wheel.
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "pre-commit>=3.7",
+    "pyyaml>=6.0",
+    "types-pyyaml>=6.0",
+    "redis>=5.0",
+    "pydantic>=2.0",
+    "fakeredis>=2.20",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+files = ["plugins"]
+
+[tool.pytest.ini_options]
+testpaths = ["plugins/hermes_claude_code_router/tests"]
+addopts = "-v --strict-markers"
