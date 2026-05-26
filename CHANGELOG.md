@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - Initial repository scaffold modeled on [`hermes-extensions`](https://github.com/infiquetra/hermes-extensions).
 - `scripts/install.sh` (copied verbatim from hermes-extensions) — installs plugins into `~/.hermes/plugins/`.
 - `pyproject.toml` for dev tooling (uv-managed, dev deps include redis, pydantic, fakeredis for testing).
-- `plugins/hermes_claude_code_router/PROTOCOL.md` — verbatim copy of the canonical protocol spec from the companion `redis-bridge` plugin in `infiquetra/infiquetra-claude-plugins`.
+- `plugins/hermes_claude_code_router/PROTOCOL.md` — verbatim copy of the canonical protocol spec from the companion `redis-channel` plugin in `infiquetra/infiquetra-claude-plugins`.
 - `plugins/hermes_claude_code_router/protocol.py` — pydantic models matching the protocol, kept in sync with the CC side.
 - `plugins/hermes_claude_code_router/plugin.yaml` — Hermes plugin manifest declaring the hook + tool registrations to come.
 - `plugins/hermes_claude_code_router/__init__.py` — `register(ctx)` stub.

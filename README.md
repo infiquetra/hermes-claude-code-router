@@ -1,6 +1,6 @@
 # hermes-claude-code-router
 
-Hermes plugin that routes Discord voice and text messages to live **Claude Code sessions** via the [`redis-bridge`](https://github.com/infiquetra/infiquetra-claude-plugins/tree/main/plugins/redis-bridge) Claude Code channel plugin.
+Hermes plugin that routes Discord voice and text messages to live **Claude Code sessions** via the [`redis-channel`](https://github.com/infiquetra/infiquetra-claude-plugins/tree/main/plugins/redis-channel) Claude Code channel plugin.
 
 Together, they enable **hands-free interaction with a live Claude Code session** while driving, running, or working out: speak into Discord voice → Mimir's existing Hermes pipeline transcribes → router forwards to the connected CC session → response comes back as TTS in the same voice channel.
 
@@ -20,7 +20,7 @@ Together, they enable **hands-free interaction with a live Claude Code session**
                                   │ streams: cc-sessions:<name>:inbound/outbound
                                   │ pub/sub: lifecycle events
                                   ▼
-                  [redis-bridge channel plugin (laptop)]
+                  [redis-channel channel plugin (laptop)]
                                   │ stdio MCP
                                   ▼
                           [Claude Code session]
@@ -35,7 +35,7 @@ This plugin:
 
 ## Protocol
 
-This plugin and `redis-bridge` share a canonical wire-format spec. Both repos keep a verbatim copy of `PROTOCOL.md` and `protocol.py`. Changes require synchronized PRs.
+This plugin and `redis-channel` share a canonical wire-format spec. Both repos keep a verbatim copy of `PROTOCOL.md` and `protocol.py`. Changes require synchronized PRs.
 
 See [plugins/hermes_claude_code_router/PROTOCOL.md](plugins/hermes_claude_code_router/PROTOCOL.md) for the full specification.
 
@@ -70,7 +70,7 @@ uv run mypy plugins/
 
 ## Related
 
-- [`redis-bridge`](https://github.com/infiquetra/infiquetra-claude-plugins/tree/main/plugins/redis-bridge) — Claude Code channel plugin (CC side of this protocol).
+- [`redis-channel`](https://github.com/infiquetra/infiquetra-claude-plugins/tree/main/plugins/redis-channel) — Claude Code channel plugin (CC side of this protocol).
 - [`hermes-extensions`](https://github.com/infiquetra/hermes-extensions) — pattern this repo was modeled on (private).
 - [Claude Code channels reference](https://code.claude.com/docs/en/channels-reference) — upstream channel protocol.
 

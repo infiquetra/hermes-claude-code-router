@@ -1,11 +1,11 @@
-"""Pydantic models for the redis-bridge ↔ router protocol.
+"""Pydantic models for the redis-channel ↔ router protocol.
 
 See PROTOCOL.md (sibling file) for the canonical specification. These models
 are the enforcement layer: every inbound payload from Redis is validated
 against them before processing; every outbound payload is serialized through
 them. Schema mismatches fail loud, not silent.
 
-This file is kept verbatim in sync with `redis-bridge/server/protocol.py` in
+This file is kept verbatim in sync with `redis-channel/server/protocol.py` in
 `infiquetra/infiquetra-claude-plugins`. Any change to the protocol requires
 synchronized PRs in both repos.
 """

@@ -1,6 +1,6 @@
 """Tests for the protocol pydantic models.
 
-These mirror the tests in `redis-bridge/tests/test_protocol.py`. Both repos
+These mirror the tests in `redis-channel/tests/test_protocol.py`. Both repos
 keep these in sync — if a test exists on one side and not the other, the
 schemas have drifted and the next router/CC interaction will fail validation.
 """
