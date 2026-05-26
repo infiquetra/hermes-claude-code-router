@@ -1,12 +1,12 @@
-# redis-bridge ↔ external-router protocol (v1)
+# redis-channel ↔ external-router protocol (v1)
 
-This document is the canonical specification for the Redis-based protocol that connects a Claude Code session (running the `redis-bridge` channel plugin) to an external router/consumer (e.g., `hermes-claude-code-router`).
+This document is the canonical specification for the Redis-based protocol that connects a Claude Code session (running the `redis-channel` channel plugin) to an external router/consumer (e.g., `hermes-claude-code-router`).
 
 Both repos copy this file verbatim. Schema changes require synchronized PRs across both sides; the `v` field is bumped on any breaking change.
 
 ## Roles
 
-- **CC plugin** (`redis-bridge`) — Claude Code channel running as an MCP subprocess of a Claude Code session. Hermes-agnostic. Speaks this protocol over Redis.
+- **CC plugin** (`redis-channel`) — Claude Code channel running as an MCP subprocess of a Claude Code session. Hermes-agnostic. Speaks this protocol over Redis.
 - **Router** (external) — anything that drives the conversation: `hermes-claude-code-router` is the reference implementation; alternatives could include a web UI, CLI test harness, or mobile app.
 
 ## Transport
@@ -36,7 +36,7 @@ Consumer groups:
 
 ## Presence
 
-### Registration (CC on `/redis-bridge connect`)
+### Registration (CC on `/redis-channel connect`)
 
 ```
 HSET cc-sessions:registry <session_name> <static_metadata_json>
@@ -51,7 +51,7 @@ Static metadata payload:
   "session_name": "infiquetra-claude-plugins-a3f7",
   "host": "jeffs-laptop.local",
   "cwd": "/Users/jefcox/workspace/infiquetra/infiquetra-claude-plugins",
-  "git_branch": "feature/redis-bridge-scaffold",
+  "git_branch": "feature/redis-channel-scaffold",
   "pid": 12345,
   "started_at": 1716567890.123,
   "capabilities": ["reply", "permission", "askuserquestion_intercept"]
@@ -62,7 +62,7 @@ Static metadata payload:
 
 CC writes the hb key every 10s with `EX 60`. Six consecutive missed beats causes presence expiry. Session metadata in `cc-sessions:registry` stays in place (lazy GC); routers MUST filter by `EXISTS cc-sessions:hb:<session_name>` before treating an entry as live.
 
-### Graceful disconnect (CC on `/redis-bridge disconnect`, SIGTERM, SIGINT)
+### Graceful disconnect (CC on `/redis-channel disconnect`, SIGTERM, SIGINT)
 
 ```
 DEL  cc-sessions:hb:<session_name>
@@ -107,7 +107,7 @@ XREADGROUP GROUP cc:<session_name> consumer-1 BLOCK 1000 STREAMS cc-sessions:<se
 CC emits `notifications/claude/channel` to the Claude Code session with content:
 
 ```
-<channel source="redis-bridge" router="hermes-claude-code-router" endpoint="mimir"
+<channel source="redis-channel" router="hermes-claude-code-router" endpoint="mimir"
          source_type="voice|dm|channel|thread" chat_id="..." user="..." username="..."
          confidence="0.93" ts="...">
 <text body>

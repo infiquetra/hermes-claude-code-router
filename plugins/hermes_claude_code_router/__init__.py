@@ -5,7 +5,7 @@ hook (see hermes-extensions/docs/plugin-authoring.md). Actual hook + tool
 registration arrives in Phase 1+.
 
 See PROTOCOL.md (sibling file) for the Redis-streams wire format shared with
-the companion redis-bridge plugin.
+the companion redis-channel plugin.
 """
 
 from __future__ import annotations
