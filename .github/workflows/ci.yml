@@ -40,7 +40,7 @@ jobs:
         run: uv sync
 
       - name: Lint with ruff
-        run: uv run ruff check plugins/
+        run: uv run ruff check plugins/hermes_claude_code_router/tests/ plugins/hermes_claude_code_router/
 
       - name: Type-check with mypy
         run: uv run mypy plugins/

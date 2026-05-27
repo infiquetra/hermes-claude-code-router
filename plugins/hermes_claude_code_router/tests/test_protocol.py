@@ -8,6 +8,7 @@ schemas have drifted and the next router/CC interaction will fail validation.
 from __future__ import annotations
 
 import pytest
+
 from hermes_claude_code_router.protocol import (
     PROTOCOL_VERSION,
     Inbound,

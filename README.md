@@ -61,6 +61,8 @@ After install, configure Mimir (or another Hermes profile) to load this plugin â
 
 ## Development
 
+Agent guidance is centralized in `AGENTS.md`. `CLAUDE.md`, `CODEX.md`, `GEMINI.md`, and `ANTIGRAVITY.md` are committed symlinks to that file so supported coding CLIs load the same repo instructions.
+
 ```bash
 uv sync
 uv run pytest plugins/hermes_claude_code_router/tests/ -v
