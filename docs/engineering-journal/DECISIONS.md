@@ -20,6 +20,23 @@
 
 ## 2026-05-26
 
+### Agent guidance entrypoints symlink to AGENTS.md  {#agent-guidance-symlinks-to-agents-md}
+
+**Decision.** `AGENTS.md` is the canonical repo guidance file for agentic coding CLIs. `CLAUDE.md`, `CODEX.md`, `GEMINI.md`, and `ANTIGRAVITY.md` are committed relative symlinks to `AGENTS.md`.
+
+**Rationale.** Multiple CLIs need the same repo-specific context, but copied Markdown files drift. Git preserves symlink entries, GitHub displays them, and macOS/Linux clones recreate them. A single canonical file keeps behavior independent of which supported tool edits the guidance.
+
+**Rejected alternatives.**
+- *Generated copies from a template.* Rejected: adds script and workflow complexity for no current benefit.
+- *Thin wrapper files that tell each tool to read `AGENTS.md`.* Rejected: lower confidence because it depends on each tool following the wrapper instruction.
+- *Keep only `CLAUDE.md`.* Rejected: Codex, Gemini, and Antigravity may not load Claude-specific filenames.
+
+**Revisit when.** A supported target environment cannot use committed symlinks, or one of the CLIs standardizes on a different universal guidance filename with broad support.
+
+**Refs.** Root `AGENTS.md`; sync guard in `plugins/hermes_claude_code_router/tests/test_agent_guidance_sync.py`.
+
+---
+
 ### Defer voice routing until voice-forge is a first-order Hermes TTS provider  {#voice-deferred-until-voice-forge-first-order}
 
 **Decision.** Phase 3 (voice routing) from the master plan is **deferred**. The router ships voice-incomplete: it'll consume voice transcripts via `pre_gateway_dispatch` (since voice + text both come through the same hook), but `voice=true` outbound replies will be either dropped or text-only until voice-forge graduates into a first-order Hermes TTS provider AND we have proven text-routing semantics end-to-end.
