@@ -55,7 +55,7 @@ cd hermes-claude-code-router
 ./scripts/install.sh plugin hermes_claude_code_router
 ```
 
-Installs to `~/.hermes/plugins/hermes_claude_code_router/` and pip-installs `requirements.txt` into the Hermes venv. Mirror the pattern from [hermes-extensions](https://github.com/infiquetra/hermes-extensions).
+Installs to `~/.hermes/plugins/hermes_claude_code_router/` and pip-installs `requirements.txt` into the Hermes venv. Mirror the pattern from [infiquetra-hermes-plugins](https://github.com/infiquetra/infiquetra-hermes-plugins).
 
 After install, configure Mimir (or another Hermes profile) to load this plugin — see profile config example in the plan or in `plugins/hermes_claude_code_router/plugin.yaml`.
 
@@ -73,7 +73,7 @@ uv run mypy plugins/
 ## Related
 
 - [`redis-channel`](https://github.com/infiquetra/infiquetra-claude-plugins/tree/main/plugins/redis-channel) — Claude Code channel plugin (CC side of this protocol).
-- [`hermes-extensions`](https://github.com/infiquetra/hermes-extensions) — pattern this repo was modeled on (private).
+- [`infiquetra-hermes-plugins`](https://github.com/infiquetra/infiquetra-hermes-plugins) — pattern this repo was modeled on (private).
 - [Claude Code channels reference](https://code.claude.com/docs/en/channels-reference) — upstream channel protocol.
 
 ## License

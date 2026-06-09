@@ -18,6 +18,28 @@
 
 ---
 
+## 2026-06-09
+
+### Point router guidance at the renamed Hermes plugin repo (commit `4c8fcfb`)  {#renamed-hermes-plugin-repo-guidance}
+
+**Decision.** Use `infiquetra-hermes-plugins` as the canonical pattern/source repository in router
+README, agent guidance, changelog, journal guidance, narrative planning notes, and plugin docstrings.
+
+**Rationale.** This router was scaffolded from the Hermes-facing plugin repository. After the
+repository rename, current guidance should point at the canonical name so future plugin work copies
+from the maintained source rather than from a redirect.
+
+**Rejected alternatives.**
+- *Rely on GitHub redirects.* Rejected: redirects keep links working but do not teach agents the
+  canonical repository name.
+- *Only update README links.* Rejected: AGENTS and journal entries are the surfaces agents actually
+  use while implementing follow-up router work.
+
+**Revisit when.** The router becomes independent of the Hermes plugin repo layout, or the plugin
+authoring source moves into upstream Hermes documentation.
+
+**Refs.** `AGENTS.md`; `README.md`; `docs/engineering-journal/LEARNINGS.md`.
+
 ## 2026-05-26
 
 ### Agent guidance entrypoints symlink to AGENTS.md  {#agent-guidance-symlinks-to-agents-md}
@@ -72,11 +94,11 @@ Also: the original master plan didn't frame text-chat as a first-class deliverab
 
 ---
 
-### Install via `scripts/install.sh` (copied from hermes-extensions pattern)  {#install-via-scripts-install-sh}
+### Install via `scripts/install.sh` (copied from infiquetra-hermes-plugins pattern)  {#install-via-scripts-install-sh}
 
-**Decision.** The plugin's deploy mechanism is `./scripts/install.sh plugin hermes_claude_code_router` — same pattern as `hermes-extensions/scripts/install.sh`. Copies/symlinks `plugins/hermes_claude_code_router/` into `~/.hermes/plugins/hermes_claude_code_router/`. Installs `requirements.txt` deps into Hermes's shared venv. Restart Hermes (or hot-reload via supervisor) to load the new plugin.
+**Decision.** The plugin's deploy mechanism is `./scripts/install.sh plugin hermes_claude_code_router` — same pattern as `infiquetra-hermes-plugins/scripts/install.sh`. Copies/symlinks `plugins/hermes_claude_code_router/` into `~/.hermes/plugins/hermes_claude_code_router/`. Installs `requirements.txt` deps into Hermes's shared venv. Restart Hermes (or hot-reload via supervisor) to load the new plugin.
 
-**Rationale.** The hermes-extensions pattern is the established convention for Hermes plugin development. Matching it lets users install our plugin with muscle memory from other plugins. The install.sh is a thin shim around `cp` (or `ln -s` for dev), so trivial to adapt.
+**Rationale.** The infiquetra-hermes-plugins pattern is the established convention for Hermes plugin development. Matching it lets users install our plugin with muscle memory from other plugins. The install.sh is a thin shim around `cp` (or `ln -s` for dev), so trivial to adapt.
 
 **Rejected alternatives.**
 - *Ansible-managed plugin install.* Rejected: plugin payloads are user-installed, not host-managed. Ansible orchestrates Hermes's runtime config (host_vars, profile env vars) but not individual plugin codebases. Mixing would muddle the boundary.

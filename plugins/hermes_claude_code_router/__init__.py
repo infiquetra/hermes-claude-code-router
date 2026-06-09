@@ -1,7 +1,7 @@
 """hermes-claude-code-router — Hermes plugin that routes Discord text/voice to Claude Code sessions.
 
 Phase 0 stub. The `register(ctx)` entry point is the documented Hermes plugin
-hook (see hermes-extensions/docs/plugin-authoring.md). Actual hook + tool
+hook (see infiquetra-hermes-plugins/docs/plugin-authoring.md). Actual hook + tool
 registration arrives in Phase 1+.
 
 See PROTOCOL.md (sibling file) for the Redis-streams wire format shared with

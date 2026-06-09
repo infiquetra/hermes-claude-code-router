@@ -55,7 +55,7 @@ For development: install this plugin via `./scripts/install.sh plugin hermes_cla
 - Python 3.12+; type hints; Pydantic v2.
 - Pre-commit + ruff lint + mypy strict (where deps allow).
 - Tests: pytest. Plugin tests live at `plugins/hermes_claude_code_router/tests/`.
-- Follow `hermes-extensions/plugins/security_guidance/` file layout (simplest existing real plugin).
+- Follow `infiquetra-hermes-plugins/plugins/security_guidance/` file layout (simplest existing real plugin).
 
 ## Communication preferences
 
