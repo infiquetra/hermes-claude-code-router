@@ -18,6 +18,28 @@
 
 ---
 
+## 2026-06-09
+
+### Point router guidance at the renamed Hermes plugin repo (commit `4c8fcfb`)  {#renamed-hermes-plugin-repo-guidance}
+
+**Decision.** Use `infiquetra-hermes-plugins` as the canonical pattern/source repository in router
+README, agent guidance, changelog, journal guidance, narrative planning notes, and plugin docstrings.
+
+**Rationale.** This router was scaffolded from the Hermes-facing plugin repository. After the
+repository rename, current guidance should point at the canonical name so future plugin work copies
+from the maintained source rather than from a redirect.
+
+**Rejected alternatives.**
+- *Rely on GitHub redirects.* Rejected: redirects keep links working but do not teach agents the
+  canonical repository name.
+- *Only update README links.* Rejected: AGENTS and journal entries are the surfaces agents actually
+  use while implementing follow-up router work.
+
+**Revisit when.** The router becomes independent of the Hermes plugin repo layout, or the plugin
+authoring source moves into upstream Hermes documentation.
+
+**Refs.** `AGENTS.md`; `README.md`; `docs/engineering-journal/LEARNINGS.md`.
+
 ## 2026-05-26
 
 ### Agent guidance entrypoints symlink to AGENTS.md  {#agent-guidance-symlinks-to-agents-md}
