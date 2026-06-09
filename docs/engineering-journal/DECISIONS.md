@@ -72,11 +72,11 @@ Also: the original master plan didn't frame text-chat as a first-class deliverab
 
 ---
 
-### Install via `scripts/install.sh` (copied from hermes-extensions pattern)  {#install-via-scripts-install-sh}
+### Install via `scripts/install.sh` (copied from infiquetra-hermes-plugins pattern)  {#install-via-scripts-install-sh}
 
-**Decision.** The plugin's deploy mechanism is `./scripts/install.sh plugin hermes_claude_code_router` — same pattern as `hermes-extensions/scripts/install.sh`. Copies/symlinks `plugins/hermes_claude_code_router/` into `~/.hermes/plugins/hermes_claude_code_router/`. Installs `requirements.txt` deps into Hermes's shared venv. Restart Hermes (or hot-reload via supervisor) to load the new plugin.
+**Decision.** The plugin's deploy mechanism is `./scripts/install.sh plugin hermes_claude_code_router` — same pattern as `infiquetra-hermes-plugins/scripts/install.sh`. Copies/symlinks `plugins/hermes_claude_code_router/` into `~/.hermes/plugins/hermes_claude_code_router/`. Installs `requirements.txt` deps into Hermes's shared venv. Restart Hermes (or hot-reload via supervisor) to load the new plugin.
 
-**Rationale.** The hermes-extensions pattern is the established convention for Hermes plugin development. Matching it lets users install our plugin with muscle memory from other plugins. The install.sh is a thin shim around `cp` (or `ln -s` for dev), so trivial to adapt.
+**Rationale.** The infiquetra-hermes-plugins pattern is the established convention for Hermes plugin development. Matching it lets users install our plugin with muscle memory from other plugins. The install.sh is a thin shim around `cp` (or `ln -s` for dev), so trivial to adapt.
 
 **Rejected alternatives.**
 - *Ansible-managed plugin install.* Rejected: plugin payloads are user-installed, not host-managed. Ansible orchestrates Hermes's runtime config (host_vars, profile env vars) but not individual plugin codebases. Mixing would muddle the boundary.

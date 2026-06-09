@@ -29,7 +29,7 @@
 
 **Context.** The router (this plugin) needs to register a hook (`pre_gateway_dispatch`) + multiple LLM tools (`list_cc_sessions`, `set_routing_target`, `get_routing_target`) + slash commands (`/cc connect`, `/cc list`, `/cc disconnect`). Figuring out the exact `ctx` API was the first investigation in the router build prep.
 
-**Evidence.** `~/workspace/infiquetra/hermes-extensions/docs/plugin-authoring.md:49-58` documents the API surface. Verified via several plugins in `~/workspace/infiquetra/hermes-extensions/plugins/` + the `home-lab` deployed plugin at `~/workspace/infiquetra/home-lab/ansible/roles/hermes/files/plugins/asgard_voice_arbiter/__init__.py`.
+**Evidence.** `~/workspace/infiquetra/infiquetra-hermes-plugins/docs/plugin-authoring.md:49-58` documents the API surface. Verified via several plugins in `~/workspace/infiquetra/infiquetra-hermes-plugins/plugins/` + the `home-lab` deployed plugin at `~/workspace/infiquetra/home-lab/ansible/roles/hermes/files/plugins/asgard_voice_arbiter/__init__.py`.
 
 | Method | Purpose |
 |--------|---------|
@@ -44,11 +44,11 @@
 
 **Mechanism.** Hermes's plugin loader scans `~/.hermes/plugins/`, imports each plugin package, looks up its `register(ctx)`, and calls it with a context object that wires the plugin into Hermes's various subsystems (hook registry, tool registry, slash dispatcher, etc.). The plugin doesn't subclass anything — it's procedural registration.
 
-**Canonical template.** `~/workspace/infiquetra/hermes-extensions/plugins/security_guidance/` is the simplest real example: registers a `pre_tool_call` hook, has tests, ~50-line `__init__.py`. Use it as the file-layout starter.
+**Canonical template.** `~/workspace/infiquetra/infiquetra-hermes-plugins/plugins/security_guidance/` is the simplest real example: registers a `pre_tool_call` hook, has tests, ~50-line `__init__.py`. Use it as the file-layout starter.
 
 **What surprised.** No TTS/STT mention in the plugin authoring surface — those are SEPARATE plugin types via `ctx.register_tts_provider(...)` (per [hermes-agent.nousresearch.com/docs/user-guide/features/tts](https://hermes-agent.nousresearch.com/docs/user-guide/features/tts)). For us, that's only relevant if we end up writing a TTS provider plugin (we're not — voice-forge already is one); the router is a different plugin type using the hook + tool surface.
 
-**Generalizable rule.** For any Hermes plugin work: read `hermes-extensions/docs/plugin-authoring.md` first; then find the closest existing plugin in `hermes-extensions/plugins/` AND in the deployed plugins at `~/workspace/infiquetra/home-lab/ansible/roles/hermes/files/plugins/`. The home-lab ones often have more real-world hook-handler shapes than the docs.
+**Generalizable rule.** For any Hermes plugin work: read `infiquetra-hermes-plugins/docs/plugin-authoring.md` first; then find the closest existing plugin in `infiquetra-hermes-plugins/plugins/` AND in the deployed plugins at `~/workspace/infiquetra/home-lab/ansible/roles/hermes/files/plugins/`. The home-lab ones often have more real-world hook-handler shapes than the docs.
 
 **Refs.** Companion repo `infiquetra/infiquetra-claude-plugins`. Plugin manifest fields documented at [#hermes-plugin-manifest](#hermes-plugin-manifest).
 
@@ -212,7 +212,7 @@ Persona file at `~/workspace/infiquetra/home-lab/ansible/roles/hermes/files/soul
 
 **Context.** How does code get from `~/workspace/infiquetra/hermes-claude-code-router/` to a running Hermes instance?
 
-**Evidence.** Pattern from `~/workspace/infiquetra/hermes-extensions/scripts/install.sh`. The hermes-claude-code-router repo has a `scripts/` directory that needs the same install.sh copied over (current state: scripts dir exists, install.sh not yet populated as of 2026-05-26).
+**Evidence.** Pattern from `~/workspace/infiquetra/infiquetra-hermes-plugins/scripts/install.sh`. The hermes-claude-code-router repo has a `scripts/` directory that needs the same install.sh copied over (current state: scripts dir exists, install.sh not yet populated as of 2026-05-26).
 
 **Flow:**
 1. `./scripts/install.sh plugin hermes_claude_code_router` (or whatever the canonical invocation is)

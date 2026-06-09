@@ -20,7 +20,7 @@
 - **Initial scaffold only** (commit `e89f0d2`). One commit on `main`.
 - `plugins/hermes_claude_code_router/` has: `__init__.py` with stub `register(ctx)`, `plugin.yaml`, `protocol.py` (Pydantic models matching `redis-channel/server/protocol.py`), `PROTOCOL.md` (canonical wire format, byte-identical to `redis-channel`'s), empty `tests/`, `requirements.txt`.
 - No `router.py`, `matchers.py`, `mode_state.py`, `redis_client.py`, `permission.py`, `llm_tools.py`, `registry_reader.py` yet.
-- `scripts/` exists but `install.sh` not yet populated (needs adaptation from `hermes-extensions/scripts/install.sh`).
+- `scripts/` exists but `install.sh` not yet populated (needs adaptation from `infiquetra-hermes-plugins/scripts/install.sh`).
 
 ## Phased build (revised)
 
@@ -126,7 +126,7 @@ When the next session starts, READ THESE FIRST:
 - [QUEUED.md](../QUEUED.md) — what's deferred + when to revisit.
 - Master plan: `~/.claude/plans/i-would-like-to-distributed-hanrahan.md` — historical artifact + still-load-bearing for Phases 4-6 design intent.
 - Companion repo: [`infiquetra/infiquetra-claude-plugins`](https://github.com/infiquetra/infiquetra-claude-plugins) — specifically `plugins/redis-channel/PROTOCOL.md`, `protocol.py`, `docs/STATE_MACHINE.md`, and that repo's `docs/engineering-journal/LEARNINGS.md` (especially `#cc-channels-bg-not-supported` and `#cc-channels-surface-split`).
-- Reference Hermes plugins: `~/workspace/infiquetra/hermes-extensions/plugins/security_guidance/` (simplest example), `~/workspace/infiquetra/home-lab/ansible/roles/hermes/files/plugins/asgard_voice_arbiter/__init__.py` (real `pre_gateway_dispatch` patterns).
+- Reference Hermes plugins: `~/workspace/infiquetra/infiquetra-hermes-plugins/plugins/security_guidance/` (simplest example), `~/workspace/infiquetra/home-lab/ansible/roles/hermes/files/plugins/asgard_voice_arbiter/__init__.py` (real `pre_gateway_dispatch` patterns).
 - Hermes deployed profile config: `~/workspace/infiquetra/home-lab/ansible/inventory/host_vars/jeffs-mac-mini.infiquetra.com.yml` (mimir-engineer).
 - voice-forge: `~/workspace/infiquetra/voice-forge/src/voice_forge/` (HTTP API for Phase 4).
 
