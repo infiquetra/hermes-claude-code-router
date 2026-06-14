@@ -18,6 +18,24 @@
 
 ---
 
+## 2026-06-14
+
+### Direction expanded: autonomous operation is a co-equal destination (STRATEGY.md first run)  {#dual-operator-autonomy-co-equal}
+
+**Decision.** The project's committed direction expands from human-in-the-loop relay only to **two co-equal destinations**: (1) **human-proxied operation** — you talk to the Hermes operator agent (Mimir), it relays/switches/orchestrates your live Claude Code sessions; and (2) **autonomous operation** — Mimir coordinates sessions toward a goal handed to it once, with no human in the loop. "Coordinate toward a goal" is the success-definer; fire-and-check and supervise-and-approve are the rungs below it. Recorded in [`STRATEGY.md`](../../STRATEGY.md).
+
+**Rationale.** The master plan and this journal scoped the router as a human-in-the-loop relay ("user picks one or none per conversation"). During the `/strategy` interview Jeff named autonomous agent operation as an *equally-desired* destination, not a v2 afterthought. Treating both as co-equal lets them share one substrate — the same tools/streams an autonomous Mimir calls are the ones a human-proxied Mimir calls — instead of forking into two products. Two structural consequences follow and are now load-bearing:
+- **Voice / operator-interface is fully upstream.** The connector only ever sees formatted text against a predetermined contract; how the operator was reached (voice, typed, Discord) is the agent's job, not this repo's. The connector's identity is the *operator↔session control plane*, not a chat/voice bridge.
+- **Permission / safety / audit moves from deferred to foundational.** An agent self-approving `Bash`/`Write` in real repos needs the approval + audit spine built *before* unsupervised operation, not after text routing ships.
+
+**Rejected alternatives.**
+- *Keep human-relay-only; treat autonomy as out-of-scope v2.* Rejected: Jeff explicitly wants autonomy as a co-equal destination, and designing the control plane without a non-human operator in mind risks a surface only a human can drive.
+- *Make autonomy the sole north star; treat human-relay as scaffolding.* Rejected: Jeff wants both as real destinations, neither subordinate.
+
+**Revisit when.** Autonomy design exploration (next: `/ideate` or `/brainstorm`) shows that goal-coordination belongs in the agent rather than the connector, OR that no acceptable safety model exists for unsupervised self-approval — either would re-scope the "Autonomy & safety" track.
+
+**Refs.** [`STRATEGY.md`](../../STRATEGY.md). Puts these prior decisions in tension pending reconciliation during re-plan (do NOT treat as superseded yet — the re-plan owns that): [#permission-relay-deferred](#permission-relay-deferred) (relay was deferred to Phase 5; now foundational), [#voice-deferred-until-voice-forge-first-order](#voice-deferred-until-voice-forge-first-order) + [#text-chat-first-milestone](#text-chat-first-milestone) (voice was deferred-in-repo; now upstream-out-of-repo). Build plan needing reconciliation: [`narratives/2026-05-26-router-build-plan.md`](narratives/2026-05-26-router-build-plan.md).
+
 ## 2026-06-09
 
 ### Point router guidance at the renamed Hermes plugin repo (commit `4c8fcfb`)  {#renamed-hermes-plugin-repo-guidance}
