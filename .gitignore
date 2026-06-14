@@ -36,3 +36,4 @@ Thumbs.db
 audit.jsonl
 state.json
 *.local.*
+.claude/saga/
