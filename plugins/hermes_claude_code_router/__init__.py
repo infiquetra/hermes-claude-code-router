@@ -78,8 +78,18 @@ def _maybe_start_relay() -> None:
 
 
 def _hook(event: Any, gateway: Any | None = None, **kwargs: Any) -> dict[str, str] | None:
-    """``pre_gateway_dispatch`` wrapper: route, then lazily start the relay."""
-    result = handle_pre_gateway_dispatch(event, gateway, config=_config, **kwargs)
+    """``pre_gateway_dispatch`` wrapper: route, then lazily start the relay.
+
+    Passes the cached Redis client so the hot path never reconnects per message.
+    If Redis is unavailable, control-matching (connect/disconnect — no Redis needed)
+    still works; the routing path degrades to a clean drop inside the router.
+    """
+    try:
+        redis: RouterRedis | None = _get_redis()
+    except Exception:  # noqa: BLE001 - Redis down: control still works, routing drops cleanly
+        logger.exception("router: Redis unavailable for this event")
+        redis = None
+    result = handle_pre_gateway_dispatch(event, gateway, redis=redis, config=_config, **kwargs)
     _maybe_start_relay()
     return result
 

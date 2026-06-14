@@ -58,24 +58,30 @@ class MatchResult:
 # strings stay lowercase for readability. Session-bearing patterns carry a
 # ``(?P<name>...)`` group.
 
+# Control patterns are ANCHORED to the start of the (stripped) message and
+# require a disambiguating keyword, so ordinary conversation that merely contains
+# a control word ("I want to switch to a different approach", "please disconnect
+# the database") does NOT hijack routing or suppress the agent's LLM. A leading
+# slash form is also accepted. Connect/switch require "session"/"cc" after the
+# verb; disconnect/list must be the whole short command (end-anchored).
 _DEFAULT_CONNECT_PATTERNS = [
-    r"connect to (?:session|cc)\s+(?P<name>\S+)",
-    r"/cc connect\s+(?P<name>\S+)",
+    r"^\s*connect to (?:session|cc)\s+(?P<name>\S+)",
+    r"^\s*/cc connect\s+(?P<name>\S+)",
 ]
 
 _DEFAULT_SWITCH_PATTERNS = [
-    r"switch to\s+(?P<name>\S+)",
-    r"/cc switch\s+(?P<name>\S+)",
+    r"^\s*switch to (?:session|cc)\s+(?P<name>\S+)",
+    r"^\s*/cc switch\s+(?P<name>\S+)",
 ]
 
 _DEFAULT_DISCONNECT_PATTERNS = [
-    r"disconnect(?:\s+(?:from\s+)?(?:session|cc))?",
-    r"/cc disconnect",
+    r"^\s*disconnect(?:\s+(?:from\s+)?(?:session|cc))?\s*$",
+    r"^\s*/cc disconnect\s*$",
 ]
 
 _DEFAULT_LIST_PATTERNS = [
-    r"list (?:cc |claude )?sessions?",
-    r"/cc list",
+    r"^\s*list (?:cc |claude )?sessions?\s*$",
+    r"^\s*/cc list\s*$",
 ]
 
 _DEFAULT_MODE_PHRASES: dict[str, list[str]] = {
@@ -155,8 +161,12 @@ def _compile(pattern: str) -> re.Pattern[str]:
 
 
 def _compile_phrase(phrase: str) -> re.Pattern[str]:
-    """Compile a literal mode phrase as a whole-token substring match."""
-    return re.compile(rf"\b{re.escape(phrase.strip())}\b", re.IGNORECASE)
+    """Compile a literal mode phrase, anchored to the start of the message.
+
+    Anchoring prevents a mid-sentence occurrence ("...we should end coding session
+    discussion...") from toggling routing mode.
+    """
+    return re.compile(rf"^\s*{re.escape(phrase.strip())}\b", re.IGNORECASE)
 
 
 def _extract_name(m: re.Match[str]) -> str | None:

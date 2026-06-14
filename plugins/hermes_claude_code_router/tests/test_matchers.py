@@ -42,7 +42,7 @@ def test_slash_cc_list(matcher: Matcher) -> None:
 
 
 def test_switch_with_session_name(matcher: Matcher) -> None:
-    result = matcher.match("switch to bar")
+    result = matcher.match("switch to session bar")
     assert result is not None
     assert result.intent is Intent.SWITCH
     assert result.name == "bar"
@@ -98,6 +98,24 @@ def test_mode_stop_phrase(matcher: Matcher) -> None:
     ],
 )
 def test_non_matching_text_returns_none(matcher: Matcher, text: str) -> None:
+    assert matcher.match(text) is None
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "I want to switch to a different approach",
+        "switch to dark mode in the settings",
+        "we should switch to using postgres",
+        "can you connect to cc systems for me",
+        "the wifi keeps trying to disconnect me",
+        "please disconnect the database before the migration",
+        "let's end coding session discussions for now",
+    ],
+)
+def test_conversational_text_does_not_hijack_routing(matcher: Matcher, text: str) -> None:
+    # Anchored control patterns must NOT fire mid-sentence — doing so would swallow
+    # the turn and suppress the agent's LLM. Regression for the v1 code-review P1.
     assert matcher.match(text) is None
 
 

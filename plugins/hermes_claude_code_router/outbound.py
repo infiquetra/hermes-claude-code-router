@@ -27,6 +27,7 @@ import asyncio
 import logging
 import threading
 from collections.abc import Callable
+from concurrent.futures import TimeoutError as FuturesTimeout
 from typing import Any
 
 from .protocol import Outbound
@@ -162,13 +163,21 @@ class OutboundRelay:
             for msg_id, fields in entries:
                 try:
                     ob = Outbound.model_validate(decode_envelope(fields))
-                except Exception:  # noqa: BLE001 - malformed → drop + ack, never crash
+                except Exception:  # noqa: BLE001 - malformed (poison) → drop + ack so it can't redeliver forever
                     logger.warning(
                         "outbound: dropped malformed entry %s on %s", msg_id, stream_name
                     )
                     self._redis.ack(stream_name, msg_id)
                     continue
-                self._deliver(ob)
+                try:
+                    self._deliver(ob)
+                except Exception:  # noqa: BLE001 - delivery failed → leave UNACKed (pending) for recovery
+                    logger.warning(
+                        "outbound: delivery failed for chat=%s on %s; left pending",
+                        ob.chat_id,
+                        stream_name,
+                    )
+                    continue
                 self._redis.ack(stream_name, msg_id)
                 delivered += 1
         return delivered
@@ -186,23 +195,25 @@ class OutboundRelay:
         self._sender(ob)
 
     def _default_send(self, ob: Outbound) -> None:
-        """Production delivery: schedule the send on the gateway's asyncio loop."""
+        """Production delivery: schedule the send on the gateway's asyncio loop.
+
+        Raises on any failure (no gateway captured yet, client/loop unresolvable,
+        send error, or timeout) so :meth:`poll_once` leaves the entry pending
+        (unacked) for recovery rather than ACKing a reply that never landed. On
+        timeout the coroutine is cancelled so it cannot fire late as a duplicate.
+        """
         gateway = self._gateway_provider()
         if gateway is None:
-            logger.warning("outbound: no gateway captured; dropping reply to %s", ob.chat_id)
-            return
+            raise RuntimeError("no gateway captured yet")
         client = _resolve_client(gateway)
         loop = _resolve_loop(gateway)
         if client is None or loop is None:
-            logger.warning(
-                "outbound: could not resolve discord client/loop; dropping reply to %s",
-                ob.chat_id,
-            )
-            return
+            raise RuntimeError("could not resolve discord client/loop")
+        future = asyncio.run_coroutine_threadsafe(
+            send_coro(client, ob.chat_id, ob.text, ob.in_reply_to), loop
+        )
         try:
-            future = asyncio.run_coroutine_threadsafe(
-                send_coro(client, ob.chat_id, ob.text, ob.in_reply_to), loop
-            )
             future.result(timeout=_SEND_TIMEOUT_SECONDS)
-        except Exception:  # noqa: BLE001 - send failure is logged, not fatal to the relay
-            logger.exception("outbound: send failed for chat=%s", ob.chat_id)
+        except FuturesTimeout:
+            future.cancel()
+            raise

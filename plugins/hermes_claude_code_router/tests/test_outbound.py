@@ -140,9 +140,24 @@ def test_send_coro_in_reply_to_resolvable_threads() -> None:
 # ── default send path: graceful degradation ──────────────────────────────────
 
 
-def test_default_send_no_gateway_does_not_raise(router: RouterRedis) -> None:
+def test_failed_delivery_left_pending_not_acked(router: RouterRedis) -> None:
+    # Default sender with no gateway captured → delivery fails → the entry stays
+    # PENDING (unacked), recoverable, rather than ACKed-and-lost. Regression for P2.
+    router.xadd_model("cc-sessions:foo:outbound", _outbound("foo", "111", "x"))
     relay = OutboundRelay(router, lambda: {"foo"}, lambda: None)  # gateway never captured
-    relay._deliver(_outbound("foo", "111", "x"))  # must not raise
+    assert relay.poll_once() == 0
+    assert router.client.xpending("cc-sessions:foo:outbound", ROUTER_GROUP)["pending"] == 1
+
+
+def test_raising_sender_leaves_entry_pending(router: RouterRedis) -> None:
+    router.xadd_model("cc-sessions:foo:outbound", _outbound("foo", "111", "x"))
+
+    def boom(_ob: Outbound) -> None:
+        raise RuntimeError("send blew up")
+
+    relay = OutboundRelay(router, lambda: {"foo"}, lambda: object(), sender=boom)
+    assert relay.poll_once() == 0
+    assert router.client.xpending("cc-sessions:foo:outbound", ROUTER_GROUP)["pending"] == 1
 
 
 # ── lifecycle ────────────────────────────────────────────────────────────────

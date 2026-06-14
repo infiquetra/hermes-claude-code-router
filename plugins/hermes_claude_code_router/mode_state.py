@@ -19,6 +19,8 @@ This module holds no protocol models; the routing target is just the bare
 
 from __future__ import annotations
 
+import threading
+
 # (user_id, endpoint, chat_id)
 RoutingKey = tuple[str, str, str]
 
@@ -26,16 +28,20 @@ RoutingKey = tuple[str, str, str]
 class RoutingState:
     """Per-surface routing-target state, held entirely in memory.
 
-    A single instance is shared across the plugin's lifetime. It is intentionally
-    not thread-safe: Hermes dispatches hook events on one event loop, so all
-    access is single-threaded.
+    A single instance is shared across the plugin's lifetime. The hook (gateway
+    event-loop thread) mutates it while the outbound relay's background thread
+    reads :meth:`active_targets`, so every access is guarded by a re-entrant lock
+    — in particular ``active_targets`` snapshots under the lock so a concurrent
+    ``set_target``/``clear_target`` cannot raise "dict changed size during
+    iteration".
     """
 
     def __init__(self) -> None:
         self._targets: dict[RoutingKey, str] = {}
-        # Routing defaults to ON; only keys explicitly turned off appear here as
-        # ``False``. Absent key == routing on.
+        # Routing defaults to ON; only keys explicitly turned off appear here.
+        # Absent key == routing on.
         self._routing_off: set[RoutingKey] = set()
+        self._lock = threading.RLock()
 
     @staticmethod
     def _key(user_id: str, endpoint: str, chat_id: str) -> RoutingKey:
@@ -45,7 +51,8 @@ class RoutingState:
         self, user_id: str, endpoint: str, chat_id: str, session_name: str
     ) -> None:
         """Route this surface's messages to ``session_name``."""
-        self._targets[self._key(user_id, endpoint, chat_id)] = session_name
+        with self._lock:
+            self._targets[self._key(user_id, endpoint, chat_id)] = session_name
 
     def get_target(self, user_id: str, endpoint: str, chat_id: str) -> str | None:
         """Return the routing target, or ``None`` if unset or routing is off.
@@ -54,27 +61,31 @@ class RoutingState:
         preserved but not returned until routing is turned back on.
         """
         key = self._key(user_id, endpoint, chat_id)
-        if key in self._routing_off:
-            return None
-        return self._targets.get(key)
+        with self._lock:
+            if key in self._routing_off:
+                return None
+            return self._targets.get(key)
 
     def clear_target(self, user_id: str, endpoint: str, chat_id: str) -> None:
         """Remove this surface's routing target. No-op if none is set."""
-        self._targets.pop(self._key(user_id, endpoint, chat_id), None)
+        with self._lock:
+            self._targets.pop(self._key(user_id, endpoint, chat_id), None)
 
     def set_routing(
         self, user_id: str, endpoint: str, chat_id: str, *, enabled: bool
     ) -> None:
         """Turn routing on or off for this surface (target is retained)."""
         key = self._key(user_id, endpoint, chat_id)
-        if enabled:
-            self._routing_off.discard(key)
-        else:
-            self._routing_off.add(key)
+        with self._lock:
+            if enabled:
+                self._routing_off.discard(key)
+            else:
+                self._routing_off.add(key)
 
     def is_routing_on(self, user_id: str, endpoint: str, chat_id: str) -> bool:
         """Whether routing is currently enabled for this surface (default True)."""
-        return self._key(user_id, endpoint, chat_id) not in self._routing_off
+        with self._lock:
+            return self._key(user_id, endpoint, chat_id) not in self._routing_off
 
     def active_targets(self) -> set[str]:
         """Session names currently routable — a target is set AND routing is on.
@@ -84,8 +95,9 @@ class RoutingState:
         consumes exactly the live targets' outbound streams without per-event
         wiring from the router.
         """
-        return {
-            target
-            for key, target in self._targets.items()
-            if key not in self._routing_off
-        }
+        with self._lock:
+            return {
+                target
+                for key, target in self._targets.items()
+                if key not in self._routing_off
+            }

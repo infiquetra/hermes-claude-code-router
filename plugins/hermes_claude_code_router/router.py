@@ -214,7 +214,6 @@ def handle_pre_gateway_dispatch(
         logger.debug("router has target %s but no text; passing through", target)
         return None
 
-    client = redis if redis is not None else RouterRedis.from_env()
     stream = f"cc-sessions:{target}:inbound"
     source = _source_from_message_type(getattr(event, "message_type", None))
     username = _username_from_event(event, user_id)
@@ -241,6 +240,18 @@ def handle_pre_gateway_dispatch(
         )
         return _skip("inbound validation failed; dropped")
 
-    msg_id = client.xadd_model(stream, inbound)
+    # The caller (the register() hook wrapper) passes a cached client, so the hot
+    # path never reconnects per message. ``from_env`` is only a fallback for direct
+    # callers/tests. A Redis outage drops the message and skips cleanly — it never
+    # crashes the gateway or reconnects-per-message.
+    try:
+        client = redis if redis is not None else RouterRedis.from_env()
+        msg_id = client.xadd_model(stream, inbound)
+    except Exception:  # noqa: BLE001 - Redis unavailable: drop + skip, do not crash the gateway
+        logger.exception(
+            "router: Redis unavailable; dropped inbound (target=%s, chat=%s)", target, chat_id
+        )
+        return _skip("redis unavailable; message dropped")
+
     logger.info("router routed→%s (chat=%s, msg_id=%s)", target, chat_id, msg_id)
     return _skip(f"routed to {target}")
