@@ -83,6 +83,16 @@
 
 ## P2 — important
 
+### Outbound relay PEL auto-reclaim (at-least-once redelivery)  {#outbound-pel-reclaim}
+
+**Priority.** P2.
+
+**Effort.** ~half-day. Add an `XAUTOCLAIM` (or `id="0"` PEL re-read) pass to `OutboundRelay.poll_once` with a min-idle-time, a retry cap, and a dead-letter / give-up path.
+
+**Worth it when.** v1 text routing is in real use AND a transient Discord failure (rate-limit, network blip, gateway-not-yet-captured) is observed stranding a reply in the PEL — or before relying on at-least-once delivery semantics.
+
+**Context.** The v1 code-review fix (commit `abc0c12`) stopped ACKing failed deliveries (no more silent loss — a P2 was that failed sends were ACKed-and-lost), but `poll_once` reads with `>` only, so a pending entry is **not auto-redelivered**; it waits for a manual claim / restart. Surfaced by the v1 code-review re-verification. Needs a retry-cap + dead-letter so a permanently-failing send can't accumulate unbounded PEL entries. See `plugins/hermes_claude_code_router/outbound.py` (`_default_send` / `poll_once`).
+
 ### Phase 5 spawn primitive depends on `claude-channel --tmux` flag (infiquetra-claude-plugins)  {#phase5-spawn-via-tmux}
 
 **Priority.** P2 — blocks Phase 5 (Mimir's `start_cc_session` LLM tool).
@@ -132,6 +142,16 @@
 ---
 
 ## P3 — nice-to-have
+
+### Anchor config-supplied matcher patterns  {#anchor-config-matcher-patterns}
+
+**Priority.** P3.
+
+**Effort.** ~1-2h. In `matchers._compile`, prepend `^\s*` to a config-supplied pattern that doesn't already start with `^` (or validate + warn at compile time); fix the unanchored example in `docs/STATE_MACHINE.md`.
+
+**Worth it when.** Per-profile `connect_patterns` / `switch_patterns` host_vars are actually wired. Today only the anchored built-in defaults are used, so production is safe.
+
+**Context.** v1 anchored the DEFAULT control patterns (fixing the mid-sentence-hijack P1), but `_compile` compiles operator-supplied patterns verbatim — an unanchored config pattern re-introduces the hijack, and the STATE_MACHINE.md example pattern is itself unanchored. Surfaced by the v1 code-review re-verification. See `plugins/hermes_claude_code_router/matchers.py` (`_compile`).
 
 ### Multi-conversation routing target scoping  {#multi-conversation-routing-target-scoping}
 

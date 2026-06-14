@@ -171,9 +171,10 @@ class OutboundRelay:
                     continue
                 try:
                     self._deliver(ob)
-                except Exception:  # noqa: BLE001 - delivery failed → leave UNACKed (pending) for recovery
+                except Exception:  # noqa: BLE001 - delivery failed → leave UNACKed (pending), not lost
                     logger.warning(
-                        "outbound: delivery failed for chat=%s on %s; left pending",
+                        "outbound: delivery failed for chat=%s on %s; left pending "
+                        "(manually recoverable; no auto-redelivery in v1)",
                         ob.chat_id,
                         stream_name,
                     )
@@ -199,8 +200,12 @@ class OutboundRelay:
 
         Raises on any failure (no gateway captured yet, client/loop unresolvable,
         send error, or timeout) so :meth:`poll_once` leaves the entry pending
-        (unacked) for recovery rather than ACKing a reply that never landed. On
-        timeout the coroutine is cancelled so it cannot fire late as a duplicate.
+        (unacked) rather than ACKing a reply that never landed. On timeout the
+        coroutine is cancelled so it cannot fire late as a duplicate.
+
+        NOTE (v1): a pending entry is NOT auto-redelivered — ``poll_once`` reads
+        with ``>`` (new only), so a transiently-failed reply waits in the PEL until
+        a manual claim / restart. Auto-reclaim is QUEUED (#outbound-pel-reclaim).
         """
         gateway = self._gateway_provider()
         if gateway is None:

@@ -156,6 +156,13 @@ def _compile(pattern: str) -> re.Pattern[str]:
     Inline ``(?i)`` flags from the host_vars examples are tolerated by Python's
     ``re``; we add :data:`re.IGNORECASE` regardless so plain patterns are also
     case-insensitive.
+
+    CAVEAT: config-supplied patterns are compiled verbatim and are NOT
+    auto-anchored — an operator supplying an unanchored pattern (e.g. the
+    STATE_MACHINE.md example ``connect to (?:session|cc)\\s+...``) re-introduces
+    the mid-sentence-hijack the anchored defaults prevent. Anchor your host_vars
+    patterns with ``^\\s*``. Auto-anchoring config patterns is QUEUED
+    (#anchor-config-matcher-patterns).
     """
     return re.compile(pattern, re.IGNORECASE)
 
