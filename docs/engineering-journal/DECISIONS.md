@@ -36,6 +36,21 @@
 
 **Refs.** [`STRATEGY.md`](../../STRATEGY.md). Puts these prior decisions in tension pending reconciliation during re-plan (do NOT treat as superseded yet — the re-plan owns that): [#permission-relay-deferred](#permission-relay-deferred) (relay was deferred to Phase 5; now foundational), [#voice-deferred-until-voice-forge-first-order](#voice-deferred-until-voice-forge-first-order) + [#text-chat-first-milestone](#text-chat-first-milestone) (voice was deferred-in-repo; now upstream-out-of-repo). Build plan needing reconciliation: [`narratives/2026-05-26-router-build-plan.md`](narratives/2026-05-26-router-build-plan.md).
 
+### Program phase sequence A→B→C→D; v1 = human-relay spine (plan 2026-06-14)  {#phase-sequence-v1-spine}
+
+**Decision.** The control-plane program builds in four dependency-ordered phases — **A** human-relay spine, **B** observability + agent tools, **C** safety foundation (shadow), **D** live autonomy rungs — and **v1 ships Phase A alone**. Recorded in [`docs/plans/2026-06-14-session-control-plane-plan.md`](../plans/2026-06-14-session-control-plane-plan.md) (KTD1).
+
+**Rationale.** The spine is the foundation every later phase consumes and the only part with no unresolved-vocabulary or cross-repo blocker. Observability (B) carries a cross-repo task-state prerequisite (worker-cooperative markers in `infiquetra-claude-plugins`) that needs its own issue; the safety vocabularies (reversibility classes, envelope grammar, shadow threshold) are better resolved empirically once the spine exists. Sequencing keeps each phase's blast radius small and lets the autonomy-safety work stay gated (shadow-before-live) behind a working, observable spine.
+
+**Rejected alternatives.**
+- *"Spine + eyes" as v1.* Rejected: pulls the cross-repo task-state dependency into v1.
+- *Plan the whole program at unit level now.* Rejected: premature — later units depend on decisions that need the spine built to inform.
+- *Build the safety foundation first.* Rejected: self-approval cannot be shadow-measured without the spine + observability beneath it.
+
+**Revisit when.** v1 ships and real use shows the phase boundaries are wrong, or the cross-repo prerequisite lands early enough to fold B into v1.
+
+**Refs.** [`docs/plans/2026-06-14-session-control-plane-plan.md`](../plans/2026-06-14-session-control-plane-plan.md); [`docs/brainstorms/2026-06-14-autonomous-session-control-plane-requirements.md`](../brainstorms/2026-06-14-autonomous-session-control-plane-requirements.md); builds on [#dual-operator-autonomy-co-equal](#dual-operator-autonomy-co-equal).
+
 ## 2026-06-09
 
 ### Point router guidance at the renamed Hermes plugin repo (commit `4c8fcfb`)  {#renamed-hermes-plugin-repo-guidance}

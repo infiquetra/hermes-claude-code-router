@@ -21,6 +21,26 @@
 
 ---
 
+## 2026-06-14
+
+### Claude Code surfaces no native turn-complete/error signal to a channel plugin  {#no-native-task-state-signal}
+
+**Context.** Planning the autonomy observability axis — whether an operator agent can see a session's task-state (idle/working/blocked/completed/errored) — required knowing what lifecycle signal Claude Code actually exposes to a channel/MCP plugin.
+
+**Evidence.** Verification against the `redis-channel` plugin (`server/channel.py`) + the Claude Code channel/hooks surface (this session, 2026-06-14): a channel plugin receives only `notifications/claude/channel` (inbound), `.../permission_request`, and `.../permission`. There is no turn-complete / idle / session-error notification. So: blocked-on-permission is observable (the permission stream); working/idle is derivable (inbound-dispatched vs outbound-reply-arrived); completed-goal-vs-mid-task and errored are NOT natively observable.
+
+**Mechanism.** Claude Code's channel notification surface carries message + permission events only; turn/session lifecycle is not exposed to plugins — and that surface is Anthropic's, not ours to extend.
+
+**Fix (or queued).** Task-state observability uses a HYBRID: derive what the existing streams allow; require **worker-cooperative markers** (the session emits explicit task-state via the reply tool, coached) for completed/blocked-mid-task/errored. Captured in the requirements doc (R5/R28) and the Phase B roadmap; CC-side marker support is a cross-repo prerequisite (an `infiquetra-claude-plugins` issue). See [DECISIONS#phase-sequence-v1-spine](DECISIONS.md#phase-sequence-v1-spine).
+
+**What surprised.** Ideation reframed "task-state is just uninstrumented" as easily addable; verification showed the missing half can't be added on our side at all — it needs worker cooperation, not a CC-side hook.
+
+**Generalizable rule.** Before building observability on a platform signal, verify the platform actually emits it to your integration point; if it doesn't and the surface isn't yours, design for cooperative self-reporting from the component you DO control, not a hoped-for upstream hook.
+
+**Refs.** [requirements R5/R28](../brainstorms/2026-06-14-autonomous-session-control-plane-requirements.md); [doc-review P1-2](../reviews/2026-06-14-autonomous-session-control-plane-doc-review.md).
+
+---
+
 ## 2026-05-26
 
 > The entries below were captured during the `redis-channel` plugin build (companion repo `infiquetra/infiquetra-claude-plugins`) when investigating how the router would interact with Hermes. They predate any router code; they're foundational context for the next session that picks up the router build. See the related narrative: [`narratives/2026-05-26-router-build-plan.md`](narratives/2026-05-26-router-build-plan.md).
