@@ -14,7 +14,7 @@ Living documentation at [`docs/engineering-journal/`](docs/engineering-journal/)
 | [ARCHIVE.md](docs/engineering-journal/ARCHIVE.md) | Shipped + rejected + superseded items |
 | [narratives/](docs/engineering-journal/narratives/) | Self-contained, longer-form companion docs |
 
-**The current state of this repo is initial scaffold + journal handoff** (as of 2026-05-26). The next implementation session should start by reading [`docs/engineering-journal/narratives/2026-05-26-router-build-plan.md`](docs/engineering-journal/narratives/2026-05-26-router-build-plan.md) — it's the revised plan for the router build.
+**The current state of this repo is v1 human-relay spine shipped** (Phase A; PR #6, merged 2026-06-14; 118 tests pass, ruff + mypy clean). v1 text routing is live. The next implementation session should start by reading [`docs/work-sessions/2026-06-14-v1-spine.md`](docs/work-sessions/2026-06-14-v1-spine.md) for what shipped and [`docs/engineering-journal/QUEUED.md`](docs/engineering-journal/QUEUED.md) for the Phase 4+ priorities (voice transcript routing, voice-forge TTS). The original build plan at [`docs/engineering-journal/narratives/2026-05-26-router-build-plan.md`](docs/engineering-journal/narratives/2026-05-26-router-build-plan.md) is retained as historical context for Phases 4-6 intent.
 
 ## Maintenance rules (agents: follow these without being asked)
 
@@ -56,6 +56,15 @@ For development: install this plugin via `./scripts/install.sh plugin hermes_cla
 - Pre-commit + ruff lint + mypy strict (where deps allow).
 - Tests: pytest. Plugin tests live at `plugins/hermes_claude_code_router/tests/`.
 - Follow `infiquetra-hermes-plugins/plugins/security_guidance/` file layout (simplest existing real plugin).
+
+## Commands
+
+```bash
+uv run pytest plugins/hermes_claude_code_router/tests/ -v   # run the test suite
+uv run ruff check plugins/                                  # lint
+uv run mypy plugins/                                        # type-check
+./scripts/install.sh plugin hermes_claude_code_router       # install into ~/.hermes/plugins/
+```
 
 ## Communication preferences
 
