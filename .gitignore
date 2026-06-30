@@ -37,3 +37,6 @@ audit.jsonl
 state.json
 *.local.*
 .claude/saga/
+.serena
+.neuralmind
+graphify-out
