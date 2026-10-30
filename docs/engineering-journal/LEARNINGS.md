@@ -23,6 +23,46 @@
 
 ## 2026-10-29
 
+### setup-uv v3 needs explicit caching and interpreter identity  {#setup-uv-v3-cache-policy}
+
+**Context.** The validation jobs used setup-uv v3 with its cache disabled by
+default, and the unit job installed dependencies without `--locked`.
+
+**Evidence.** `.github/workflows/ci.yml`; `.github/workflows/redis-compatibility.yml`;
+upstream setup-uv `action.yml`, `src/utils/inputs.ts`, `src/setup-uv.ts`,
+`src/cache/restore-cache.ts`, and `src/save-cache.ts`
+at `caf0cab7a618c569241d31dcd442f54681755d39`. Successful hosted runs
+`40979870881` (unit, 12 seconds) and `40979870738` (compatibility, 19 seconds)
+are individual timing samples, supporting a generous five-minute job deadline.
+
+**Mechanism.** v3 keys its download archive by platform, architecture, uv
+version, dependency-file hash and optional suffix. It restores before our Python
+installation, so `python-3.12` identifies the declared interpreter policy; it
+does not claim an observed interpreter patch version. The input reader resolves
+`cache-local-path`; setup exports it as `UV_CACHE_DIR` before restoring, so later
+commands use the same directory without a duplicate job environment. Cache
+misses and caught restore transport errors leave the validation commands unconditional. Save
+errors are reported by the post action. Default `uv cache prune --ci` remains
+enabled and can remove downloaded wheels, so enabling caching alone does not
+establish a speedup.
+
+**Fix.** Set `cache-local-path` to `${{ runner.temp }}/uv-cache` on the hosted
+Ubuntu jobs, outside the checkout, environments and tool installs.
+Key by `uv.lock` and Python policy; pin the existing action majors and use
+`uv sync --locked` in both jobs. Scope cancellation to the workflow and PR, with unique run IDs for
+non-PR work so main, release and manual validations remain independent.
+
+**Validation.** Unchanged 126-test collection and passing unit suite, Ruff,
+mypy and actionlint. Local execution of the official input reader, setup and
+cache functions verifies the export before restore, miss/hit/restore-error
+paths and an inherited cache directory override, with mocked transport. Local expression checks
+cover cancellation policy. Hosted cache provider/consumer, transport, race and
+real-service results remain separate operational checks; no time or financial
+savings are claimed.
+
+**Generalizable rule.** Verify the selected action major's key, archive and
+failure behavior; a cache must leave authoritative validation unconditional.
+
 ### A Redis service beside fakeredis tests does not verify Redis compatibility  {#redis-compatibility-lane}
 
 **Context.** The ordinary CI job started Redis and set `REDIS_HOST`/`REDIS_PORT`,
