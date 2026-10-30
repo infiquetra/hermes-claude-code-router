@@ -23,45 +23,45 @@
 
 ## 2026-10-29
 
-### setup-uv v3 needs explicit caching and interpreter identity  {#setup-uv-v3-cache-policy}
+### setup-uv caching requires a compatible service client  {#setup-uv-v3-cache-policy}
 
-**Context.** The validation jobs used setup-uv v3 with its cache disabled by
-default, and the unit job installed dependencies without `--locked`.
+**Context.** The v3 setup candidate passed source review and both validation
+jobs, but cache restore returned HTTP 400 and save reported service errors in
+runs `40988491433` / `40988491434`. Authenticated provider readback found zero
+entries. The subsequent cache-saved log line was not evidence of a saved cache.
+The [pre-correction learning](ARCHIVE.md#setup-uv-v3-cache-policy-superseded)
+from `b20da0f` is archived verbatim.
 
-**Evidence.** `.github/workflows/ci.yml`; `.github/workflows/redis-compatibility.yml`;
-upstream setup-uv `action.yml`, `src/utils/inputs.ts`, `src/setup-uv.ts`,
-`src/cache/restore-cache.ts`, and `src/save-cache.ts`
-at `caf0cab7a618c569241d31dcd442f54681755d39`. Successful hosted runs
-`40979870881` (unit, 12 seconds) and `40979870738` (compatibility, 19 seconds)
-are individual timing samples, supporting a generous five-minute job deadline.
+**Evidence.** Both workflow files; official setup-uv package/source at
+`caf0cab7a618c569241d31dcd442f54681755d39` (v3, cache dependency `^3.3.0`) and
+`d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86` (v5, `^4.0.3`);
+[GitHub's cache service retirement notice](https://github.blog/changelog/2025-03-20-notification-of-upcoming-breaking-changes-in-github-actions/).
 
-**Mechanism.** v3 keys its download archive by platform, architecture, uv
-version, dependency-file hash and optional suffix. It restores before our Python
-installation, so `python-3.12` identifies the declared interpreter policy; it
-does not claim an observed interpreter patch version. The input reader resolves
-`cache-local-path`; setup exports it as `UV_CACHE_DIR` before restoring, so later
-commands use the same directory without a duplicate job environment. Cache
-misses and caught restore transport errors leave the validation commands unconditional. Save
-errors are reported by the post action. Default `uv cache prune --ci` remains
-enabled and can remove downloaded wheels, so enabling caching alone does not
-establish a speedup.
+**Mechanism.** The bundled v3 client calls the legacy artifactcache API.
+GitHub retired that service in April 2025; toolkit cache v4 adds v2 API support.
+This is a concrete compatibility defect consistent with the failed operations,
+not proof that every generic service error had the same sole cause. A save API
+can also resolve after reporting a warning; an action's later success log does
+not establish persistence.
 
-**Fix.** Set `cache-local-path` to `${{ runner.temp }}/uv-cache` on the hosted
-Ubuntu jobs, outside the checkout, environments and tool installs.
-Key by `uv.lock` and Python policy; pin the existing action majors and use
-`uv sync --locked` in both jobs. Scope cancellation to the workflow and PR, with unique run IDs for
-non-PR work so main, release and manual validations remain independent.
+**Fix.** Use the verified v5 action while pinning the observed uv runtime to
+`0.13.6`. v5 keys by architecture, platform, detected Python and lock hash;
+its suffix now binds uv `0.13.6` and declared Python `3.12`. Leave its
+`python-version` input unset to preserve the existing Python installation and
+avoid its automatic virtual-environment creation. Keep the temporary download
+archive/export and `uv cache prune --ci`. v5 only warns on an unmatched lockfile,
+so check `uv.lock` exists before setup to retain fail-closed invalidation.
 
-**Validation.** Unchanged 126-test collection and passing unit suite, Ruff,
-mypy and actionlint. Local execution of the official input reader, setup and
-cache functions verifies the export before restore, miss/hit/restore-error
-paths and an inherited cache directory override, with mocked transport. Local expression checks
-cover cancellation policy. Hosted cache provider/consumer, transport, race and
-real-service results remain separate operational checks; no time or financial
-savings are claimed.
+**Validation.** The previous 126-case unit and genuine Redis checks passed,
+while caching failed; these observations remain separate. Local controls use
+the actual v5 inputs/setup/restore/save code with mocked transport, and verify
+command preservation and YAML. Fresh hosted unit/Redis runs, provider readback
+and renewed source review remain required for the repaired candidate. No cache
+hit, save, transport success or savings are claimed from local controls.
 
-**Generalizable rule.** Verify the selected action major's key, archive and
-failure behavior; a cache must leave authoritative validation unconditional.
+**Generalizable rule.** Verify the action's transitive cache API against the
+provider, then confirm persistence independently of success logs. Keep cache
+reuse optional and validation authoritative.
 
 ### A Redis service beside fakeredis tests does not verify Redis compatibility  {#redis-compatibility-lane}
 
