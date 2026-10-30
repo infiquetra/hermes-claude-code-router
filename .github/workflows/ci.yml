@@ -16,17 +16,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - uses: actions/checkout@v4
 
@@ -46,7 +35,4 @@ jobs:
         run: uv run mypy plugins/
 
       - name: Run pytest
-        env:
-          REDIS_HOST: localhost
-          REDIS_PORT: "6379"
         run: uv run pytest plugins/hermes_claude_code_router/tests/ -v

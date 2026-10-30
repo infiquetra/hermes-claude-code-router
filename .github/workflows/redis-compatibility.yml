@@ -1,0 +1,61 @@
+name: Redis compatibility
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/redis-compatibility.yml
+      - plugins/hermes_claude_code_router/**
+      - pyproject.toml
+      - uv.lock
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/redis-compatibility.yml
+      - plugins/hermes_claude_code_router/**
+      - pyproject.toml
+      - uv.lock
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  redis-compatibility:
+    name: Real Redis stream compatibility
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    services:
+      redis:
+        # Redis 7.4.12; immutable official Docker Library index.
+        image: redis:7-alpine@sha256:8da19c7399dca900c6822a1cf30f9d2285585e2c4b457ff4095b0f4500054d3f
+        ports:
+          - 6379/tcp
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Round-trip a protocol message through real Redis
+        env:
+          REDIS_TEST_PORT: ${{ job.services.redis.ports['6379'] }}
+        run: >-
+          timeout 30s uv run python -m
+          plugins.hermes_claude_code_router.compatibility.redis_roundtrip
+          --port "$REDIS_TEST_PORT"

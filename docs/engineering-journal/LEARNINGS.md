@@ -21,6 +21,41 @@
 
 ---
 
+## 2026-10-29
+
+### A Redis service beside fakeredis tests does not verify Redis compatibility  {#redis-compatibility-lane}
+
+**Context.** The ordinary CI job started Redis and set `REDIS_HOST`/`REDIS_PORT`,
+but every existing Redis test injected fakeredis. Neither variable selected the
+test backend, so service initialization provided no real-server assurance.
+
+**Evidence.** `.github/workflows/ci.yml`; fake fixtures in
+`plugins/hermes_claude_code_router/tests/test_redis_client.py` and
+`test_register.py`; explicit acceptance in
+`plugins/hermes_claude_code_router/compatibility/redis_roundtrip.py`.
+
+**Mechanism.** A provisioned service is exercised only when the test client
+connects to it. Injected fake clients bypass the service entirely.
+
+**Fix.** Remove the unused service and environment from the unchanged `test`
+job. Add a separate, path-filtered compatibility/release/manual workflow using
+an immutable Redis image and an explicit loopback port. The acceptance command
+writes and reads a validated protocol object through `RouterRedis`, checks
+pending delivery and acknowledgement, and removes its unique stream.
+
+**Validation.** Python 3.12 with the unchanged lock: identical 126-test unit
+collection, all 126 pass without Redis connection environment, Ruff and mypy
+pass. Real-service positive/negative proof and both hosted workflow results
+remain separate qualification steps; see [Redis acceptance](../redis-compatibility.md).
+The new lane adds assurance compute; historical combined initialization times
+do not establish a net saving.
+
+**Generalizable rule.** Removing unused infrastructure preserves only the
+coverage tests actually execute; real compatibility needs an explicit client
+round trip that fails when its configured service is absent.
+
+---
+
 ## 2026-06-14
 
 ### Claude Code surfaces no native turn-complete/error signal to a channel plugin  {#no-native-task-state-signal}
