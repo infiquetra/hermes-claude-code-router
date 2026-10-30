@@ -22,6 +22,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   redis-compatibility:
     name: Real Redis stream compatibility
@@ -41,10 +45,21 @@ jobs:
           --health-retries 10
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Check dependency lockfile
+        run: test -f uv.lock
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+        with:
+          version: "0.13.6"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+          # v5 omits uv from its key; retain runtime and declared Python policy.
+          cache-suffix: uv-0.13.6-python-3.12
+          cache-local-path: ${{ runner.temp }}/uv-cache
+          prune-cache: true
 
       - name: Set up Python
         run: uv python install 3.12

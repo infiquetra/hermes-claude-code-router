@@ -23,6 +23,46 @@
 
 ## 2026-10-29
 
+### setup-uv caching requires a compatible service client  {#setup-uv-v3-cache-policy}
+
+**Context.** The v3 setup candidate passed source review and both validation
+jobs, but cache restore returned HTTP 400 and save reported service errors in
+runs `40988491433` / `40988491434`. Authenticated provider readback found zero
+entries. The subsequent cache-saved log line was not evidence of a saved cache.
+The [pre-correction learning](ARCHIVE.md#setup-uv-v3-cache-policy-superseded)
+from `b20da0f` is archived verbatim.
+
+**Evidence.** Both workflow files; official setup-uv package/source at
+`caf0cab7a618c569241d31dcd442f54681755d39` (v3, cache dependency `^3.3.0`) and
+`d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86` (v5, `^4.0.3`);
+[GitHub's cache service retirement notice](https://github.blog/changelog/2025-03-20-notification-of-upcoming-breaking-changes-in-github-actions/).
+
+**Mechanism.** The bundled v3 client calls the legacy artifactcache API.
+GitHub retired that service in April 2025; toolkit cache v4 adds v2 API support.
+This is a concrete compatibility defect consistent with the failed operations,
+not proof that every generic service error had the same sole cause. A save API
+can also resolve after reporting a warning; an action's later success log does
+not establish persistence.
+
+**Fix.** Use the verified v5 action while pinning the observed uv runtime to
+`0.13.6`. v5 keys by architecture, platform, detected Python and lock hash;
+its suffix now binds uv `0.13.6` and declared Python `3.12`. Leave its
+`python-version` input unset to preserve the existing Python installation and
+avoid its automatic virtual-environment creation. Keep the temporary download
+archive/export and `uv cache prune --ci`. v5 only warns on an unmatched lockfile,
+so check `uv.lock` exists before setup to retain fail-closed invalidation.
+
+**Validation.** The previous 126-case unit and genuine Redis checks passed,
+while caching failed; these observations remain separate. Local controls use
+the actual v5 inputs/setup/restore/save code with mocked transport, and verify
+command preservation and YAML. Fresh hosted unit/Redis runs, provider readback
+and renewed source review remain required for the repaired candidate. No cache
+hit, save, transport success or savings are claimed from local controls.
+
+**Generalizable rule.** Verify the action's transitive cache API against the
+provider, then confirm persistence independently of success logs. Keep cache
+reuse optional and validation authoritative.
+
 ### A Redis service beside fakeredis tests does not verify Redis compatibility  {#redis-compatibility-lane}
 
 **Context.** The ordinary CI job started Redis and set `REDIS_HOST`/`REDIS_PORT`,
