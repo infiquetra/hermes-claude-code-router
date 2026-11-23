@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 CANONICAL_GUIDANCE = REPO_ROOT / "AGENTS.md"
-TOOL_GUIDANCE_FILES = [
-    "CLAUDE.md",
+RETIRED_GUIDANCE_FILES = [
     "CODEX.md",
     "GEMINI.md",
     "ANTIGRAVITY.md",
@@ -19,13 +17,21 @@ REQUIRED_CONTEXT_REFERENCES = [
 ]
 
 
-def test_tool_guidance_files_are_symlinks_to_agents_md() -> None:
-    for filename in TOOL_GUIDANCE_FILES:
+def test_claude_md_imports_agents_md() -> None:
+    # AGENTS.md is the single instruction file. CLAUDE.md is a regular one-line
+    # file that makes Claude Code import it (infiquetra-context-library
+    # docs/ai-context/instruction-surfaces.md).
+    path = REPO_ROOT / "CLAUDE.md"
+
+    assert not path.is_symlink(), "CLAUDE.md must be a regular file, not a symlink"
+    assert path.read_text(encoding="utf-8") == "@AGENTS.md\n"
+
+
+def test_retired_tool_guidance_files_are_absent() -> None:
+    for filename in RETIRED_GUIDANCE_FILES:
         path = REPO_ROOT / filename
 
-        assert path.is_symlink(), f"{filename} must be a symlink to AGENTS.md"
-        assert os.readlink(path) == "AGENTS.md"
-        assert path.read_bytes() == CANONICAL_GUIDANCE.read_bytes()
+        assert not path.exists() and not path.is_symlink(), f"{filename} is retired; AGENTS.md is read directly"
 
 
 def test_agents_md_keeps_required_repo_context() -> None:

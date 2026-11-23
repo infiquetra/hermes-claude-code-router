@@ -1,6 +1,6 @@
 # Agent configuration for `hermes-claude-code-router`
 
-This file is the canonical guidance for agentic coding CLIs in this repository. Tool-specific entrypoints (`CLAUDE.md`, `CODEX.md`, `GEMINI.md`, and `ANTIGRAVITY.md`) are symlinks to this file so every supported CLI sees the same repo instructions. It points at the canonical context for working in this repo and lays out the engineering-journal maintenance rules. **Read the journal first if you're picking up a new session in this repo.**
+This file is the canonical guidance for agentic coding CLIs in this repository. Every supported CLI reads this file directly; `CLAUDE.md` holds only `@AGENTS.md`, which makes Claude Code import it. It points at the canonical context for working in this repo and lays out the engineering-journal maintenance rules. **Read the journal first if you're picking up a new session in this repo.**
 
 ## Engineering journal (canonical context)
 
