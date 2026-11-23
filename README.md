@@ -1,6 +1,8 @@
 # hermes-claude-code-router
 
-Hermes plugin that routes Discord voice and text messages to live **Claude Code sessions** via the [`redis-channel`](https://github.com/infiquetra/infiquetra-claude-plugins/tree/main/plugins/redis-channel) Claude Code channel plugin.
+Hermes plugin that routes Discord voice and text messages to live **Claude Code sessions** via the `redis-channel` Claude Code channel plugin.
+
+> **Status note.** `redis-channel`, the Claude Code half of this design, is retired (it was retired in `infiquetra-agent-plugins`) and its old home, `infiquetra-claude-plugins`, is archived. No replacement is named here, and the text below describes the original paired design.
 
 Together, they enable **hands-free interaction with a live Claude Code session** while driving, running, or working out: speak into Discord voice → Mimir's existing Hermes pipeline transcribes → router forwards to the connected CC session → response comes back as TTS in the same voice channel.
 
@@ -35,7 +37,7 @@ This plugin:
 
 ## Protocol
 
-This plugin and `redis-channel` share a canonical wire-format spec. Both repos keep a verbatim copy of `PROTOCOL.md` and `protocol.py`. Changes require synchronized PRs.
+This plugin and the retired `redis-channel` plugin shared a canonical wire-format spec, with a verbatim copy of `PROTOCOL.md` and `protocol.py` in both repos. With `redis-channel` retired, this repo's copy is the only one.
 
 See [plugins/hermes_claude_code_router/PROTOCOL.md](plugins/hermes_claude_code_router/PROTOCOL.md) for the full specification.
 
@@ -45,7 +47,7 @@ State-machine semantics (state keys, transitions, race resolution) are documente
 
 **Phase 0 scaffold.** Repo structure + protocol spec + state-machine spec + pydantic models pinning the wire format. Actual Hermes plugin hooks, Redis I/O, permission relay, and LLM tools land in later phases.
 
-Roadmap and prerequisites live in the companion plan at `infiquetra/infiquetra-claude-plugins:.claude/plans/i-would-like-to-distributed-hanrahan.md` (private — DM @namredips if you need access).
+Roadmap and prerequisites lived in a companion plan in the now-archived `infiquetra/infiquetra-claude-plugins` (`.claude/plans/i-would-like-to-distributed-hanrahan.md`, private).
 
 ## Installation (when implemented)
 
@@ -72,8 +74,8 @@ uv run mypy plugins/
 
 ## Related
 
-- [`redis-channel`](https://github.com/infiquetra/infiquetra-claude-plugins/tree/main/plugins/redis-channel) — Claude Code channel plugin (CC side of this protocol).
-- [`infiquetra-hermes-plugins`](https://github.com/infiquetra/infiquetra-hermes-plugins) — pattern this repo was modeled on (private).
+- `redis-channel` — Claude Code channel plugin (CC side of this protocol). Retired; its old home, `infiquetra-claude-plugins`, is archived.
+- `infiquetra-hermes-plugins` — pattern this repo was modeled on (private). Retired and archived.
 - [Claude Code channels reference](https://code.claude.com/docs/en/channels-reference) — upstream channel protocol.
 
 ## License

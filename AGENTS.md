@@ -4,7 +4,7 @@ This file is the canonical guidance for agentic coding CLIs in this repository. 
 
 ## Engineering journal (canonical context)
 
-Living documentation at [`docs/engineering-journal/`](docs/engineering-journal/) — pattern adopted from `infiquetra/infiquetra-claude-plugins/docs/engineering-journal/` (which itself adopted from `infiquetra/home-lab/docs/engineering-journal/`).
+Living documentation at [`docs/engineering-journal/`](docs/engineering-journal/) — pattern adopted from `infiquetra/home-lab/docs/engineering-journal/` (by way of `infiquetra-claude-plugins`, now retired and archived).
 
 | File | Purpose |
 |------|---------|
@@ -34,15 +34,16 @@ Living documentation at [`docs/engineering-journal/`](docs/engineering-journal/)
 
 **Don't wait to be asked.** When any of these triggers fire, update the files as part of the same commit.
 
-## Cross-repo cohort
+## Cross-repo cohort (retired)
 
-This repo is the **router side** of a paired build with [`infiquetra/infiquetra-claude-plugins`](https://github.com/infiquetra/infiquetra-claude-plugins) (CC-plugin side, specifically `plugins/redis-channel/`). They share the canonical wire-format spec ([`PROTOCOL.md`](plugins/hermes_claude_code_router/PROTOCOL.md)) and Pydantic models ([`protocol.py`](plugins/hermes_claude_code_router/protocol.py)). Per [DECISIONS#protocol-py-byte-identical](docs/engineering-journal/DECISIONS.md#protocol-py-byte-identical): keep both in sync byte-identical; protocol changes require synchronized PRs.
+This repo was the **router side** of a paired build. The other half, the `redis-channel` Claude Code channel plugin in `infiquetra/infiquetra-claude-plugins` (`plugins/redis-channel/`), is **retired**: `redis-channel` was retired in `infiquetra-agent-plugins` and the old `infiquetra-claude-plugins` repository is archived. This file does not name a replacement.
 
-**Important cross-repo references:**
-- [`infiquetra-claude-plugins/plugins/redis-channel/PROTOCOL.md`](https://github.com/infiquetra/infiquetra-claude-plugins/blob/main/plugins/redis-channel/PROTOCOL.md) — the canonical wire format
-- [`infiquetra-claude-plugins/plugins/redis-channel/docs/STATE_MACHINE.md`](https://github.com/infiquetra/infiquetra-claude-plugins/blob/main/plugins/redis-channel/docs/STATE_MACHINE.md) — router-side state machine spec
-- [`infiquetra-claude-plugins/docs/engineering-journal/LEARNINGS.md`](https://github.com/infiquetra/infiquetra-claude-plugins/blob/main/docs/engineering-journal/LEARNINGS.md) — especially `#cc-channels-bg-not-supported` (affects Phase 5 spawn design) and `#cc-channels-surface-split` (don't try to mirror terminal/channel)
-- Master plan: `~/.claude/plans/i-would-like-to-distributed-hanrahan.md` — historical artifact, still load-bearing for Phases 4-6 intent
+What that means for work here:
+
+- The wire-format spec ([`PROTOCOL.md`](plugins/hermes_claude_code_router/PROTOCOL.md)) and Pydantic models ([`protocol.py`](plugins/hermes_claude_code_router/protocol.py)) are now owned by this repo alone. The "keep both sides byte-identical, synchronized PRs" rule in [DECISIONS#protocol-py-byte-identical](docs/engineering-journal/DECISIONS.md#protocol-py-byte-identical) has no second copy to keep in step with. That entry is historical and has not been rewritten.
+- Treat any statement elsewhere in this repo that the router "pairs with" or "talks to" `redis-channel` as describing the retired design, not a live dependency.
+- The archived repository is still readable for history only: `infiquetra/infiquetra-claude-plugins` (`plugins/redis-channel/PROTOCOL.md`, `plugins/redis-channel/docs/STATE_MACHINE.md`, and its engineering journal, especially `#cc-channels-bg-not-supported` and `#cc-channels-surface-split`).
+- Master plan: `~/.claude/plans/i-would-like-to-distributed-hanrahan.md` — historical artifact, still load-bearing for Phases 4-6 intent.
 
 ## Where Hermes runs
 
@@ -55,7 +56,7 @@ For development: install this plugin via `./scripts/install.sh plugin hermes_cla
 - Python 3.12+; type hints; Pydantic v2.
 - Pre-commit + ruff lint + mypy strict (where deps allow).
 - Tests: pytest. Plugin tests live at `plugins/hermes_claude_code_router/tests/`.
-- Follow `infiquetra-hermes-plugins/plugins/security_guidance/` file layout (simplest existing real plugin).
+- Follow the file layout of an existing real Hermes plugin; `infiquetra-hermes-plugins/plugins/security_guidance/` was the original model, but that repository is retired and archived.
 
 ## Commands
 

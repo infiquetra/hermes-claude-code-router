@@ -2,7 +2,7 @@ name: hermes-claude-code-router
 version: "0.1.0"
 description: >-
   Routes Discord text/voice messages to live Claude Code sessions via the
-  redis-channel channel protocol. Companion to infiquetra-claude-plugins/redis-channel.
+  redis-channel channel protocol. The redis-channel companion plugin is retired.
 provides_hooks:
   - pre_gateway_dispatch
 provides_tools:
