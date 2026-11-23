@@ -18,6 +18,20 @@
 
 ---
 
+## 2026-11-23
+
+### CLAUDE.md imports AGENTS.md; the other entrypoint links are removed  {#claude-md-imports-agents-md}
+
+**Decision.** `AGENTS.md` stays the single guidance file. `CLAUDE.md` becomes a regular one-line file, `@AGENTS.md`. The `CODEX.md`, `GEMINI.md` and `ANTIGRAVITY.md` links are removed. This supersedes [Agent guidance entrypoints symlink to AGENTS.md](#agent-guidance-symlinks-to-agents-md) and follows the organization standard in infiquetra-context-library `docs/ai-context/instruction-surfaces.md`.
+
+**Rationale.** Codex, Antigravity, OpenCode, Grok, Muse and Hermes read `AGENTS.md` directly, and no tool reads `CODEX.md` or `ANTIGRAVITY.md`. Grok and Antigravity read `CLAUDE.md`/`GEMINI.md` and `AGENTS.md` side by side, so a symlinked copy is loaded twice. Claude Code reads `AGENTS.md` on its own only when no `CLAUDE.md` is in the folder or above, which never holds for a company Claude account whose config folder is moved; the one-line import works on every account.
+
+**Rejected alternatives.**
+- *Keep the symlinks.* Rejected: duplicate loading in Grok and Antigravity, and two names no tool reads.
+- *No `CLAUDE.md` at all.* Rejected: Claude Code on a machine without the `instructionFiles` setting would get no repo guidance.
+
+**Revisit when.** Claude Code reads `AGENTS.md` alongside `CLAUDE.md` by default.
+
 ## 2026-06-14
 
 ### Direction expanded: autonomous operation is a co-equal destination (STRATEGY.md first run)  {#dual-operator-autonomy-co-equal}

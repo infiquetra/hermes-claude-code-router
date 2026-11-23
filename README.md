@@ -61,7 +61,7 @@ After install, configure Mimir (or another Hermes profile) to load this plugin â
 
 ## Development
 
-Agent guidance is centralized in `AGENTS.md`. `CLAUDE.md`, `CODEX.md`, `GEMINI.md`, and `ANTIGRAVITY.md` are committed symlinks to that file so supported coding CLIs load the same repo instructions.
+Agent guidance is centralized in `AGENTS.md`, which every supported coding CLI reads. `CLAUDE.md` is a one-line file (`@AGENTS.md`) that makes Claude Code import it.
 
 ```bash
 uv sync
